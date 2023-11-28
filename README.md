@@ -1,5 +1,6 @@
 Face Recognition Based Automatic Attendance System (FRBAAS)
 .................................................
+
 A step-by-step guide to run the Face Recognition Based Automatic Attendance System (FRBAAS) on a new user's desktop:
 
 Prerequisites
