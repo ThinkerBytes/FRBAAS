@@ -20,21 +20,25 @@ cd FRBAAS
 
 Step 2: Create and Activate a Virtual Environment
 On Windows:
+
 python -m venv venv
 
 venv\Scripts\activate
 
 On macOS/Linux:
+
 python3 -m venv venv
 
 source venv/bin/activate
 
 Step 3: Install Dependencies
+
 pip install -r requirements.txt
 
 once the requiremets is installed
 
 Step 4: Run the Flask App
+
 python app.py
 
 (The Flask app will start running. Access it in your web browser at http://127.0.0.1:5000/.)
