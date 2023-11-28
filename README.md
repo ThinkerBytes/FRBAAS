@@ -6,7 +6,8 @@ A step-by-step guide to run the Face Recognition Based Automatic Attendance Syst
 Prerequisites
 Before you begin, ensure you have the following installed on your machine:
 
-Python
+Python,
+
 Git (optional)
 
 Step 1: Clone the Repository
