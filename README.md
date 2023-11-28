@@ -15,7 +15,7 @@ Open your terminal and run the following commands:
 git clone https://github.com/ThinkerBytes/FRBAAS.git
 cd FRBAAS
 
-(if you are not using git, you can download this repository: https://github.com/ThinkerBytes/FRBAAS
+(if you are not using git, you can download this repository: https://github.com/ThinkerBytes/FRBAAS     once you download the repo. Open a terminal navigate to that repo/folder. make sure your are in the folder wher, app.py file is present.
 )
 
 Step 2: Create and Activate a Virtual Environment
