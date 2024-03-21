@@ -15,7 +15,7 @@ app = Flask(__name__)
 app.secret_key = '12345678'
 
 
-nimgs = 10
+nimgs = 30
 
 # Saving Date today in 2 different formats
 datetoday = date.today().strftime("%m_%d_%y")
@@ -47,7 +47,7 @@ def totalreg():
 def extract_faces(img):
     try:
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        face_points = face_detector.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(30, 30))
+        face_points = face_detector.detectMultiScale(gray, 1.2, 5, minSize=(20, 20))
         return face_points
     except:
         return []
@@ -248,7 +248,19 @@ def add():
     names, rolls, times, l = extract_attendance()
     return render_template('index.html', names=names, rolls=rolls, times=times, l=l, totalreg=totalreg(), datetoday2=datetoday2)
 
+# Route to create a new period (new attendance file) and clear the attendance list
+@app.route('/newperiod', methods=['GET'])
+def newperiod():
+    # Increment the period number
+    period_number = len([file for file in os.listdir('Attendance') if file.startswith('Attendance-')])
 
+    # Create a new attendance file for the new period
+    new_attendance_file = f'Attendance/Attendance-Period{period_number + 1}-{datetoday}.csv'
+    with open(new_attendance_file, 'w') as f:
+        f.write('Name,Roll,Time')
+
+    # Redirect back to the home page
+    return redirect(url_for('home'))
 
 # Our main function which runs the Flask App
 if __name__ == '__main__':
