@@ -15,7 +15,7 @@ app = Flask(__name__)
 app.secret_key = '12345678'
 
 
-nimgs = 30
+nimgs = 100
 
 # Saving Date today in 2 different formats
 datetoday = date.today().strftime("%m_%d_%y")
@@ -169,7 +169,7 @@ def deleteuser():
     return render_template('listusers.html', userlist=userlist, names=names, rolls=rolls, l=l, totalreg=totalreg(), datetoday2=datetoday2)
 
 
-# Our main Face Recognition functionality. 
+# Our main Face Recognition functionality.
 # This function will run when we click on Take Attendance Button.
 @app.route('/start', methods=['GET'])
 def start():
@@ -178,22 +178,52 @@ def start():
     if 'face_recognition_model.pkl' not in os.listdir('static'):
         return render_template('index.html', names=names, rolls=rolls, times=times, l=l, totalreg=totalreg(), datetoday2=datetoday2, mess='There is no trained model in the static folder. Please add a new face to continue.')
 
-    ret = True
     cap = cv2.VideoCapture(0)
-    while ret:
+
+    # Initialize default parameter values
+    scaleFactor = 10
+    minNeighbors = 5
+    minSize = 20
+
+    # Create the 'Attendance' window
+    cv2.namedWindow('Attendance')
+
+    # Create a separate window for sliders
+    cv2.namedWindow('Sliders')
+    cv2.moveWindow('Sliders', 20, 20)  # Move the sliders window to a specific position
+
+    # Create trackbars for parameter adjustment
+    cv2.createTrackbar('Scale Factor', 'Sliders', scaleFactor, 20, lambda x: None)
+    cv2.createTrackbar('Min Neighbors', 'Sliders', minNeighbors, 20, lambda x: None)
+    cv2.createTrackbar('Min Size', 'Sliders', minSize, 100, lambda x: None)
+
+    while True:
         ret, frame = cap.read()
-        if len(extract_faces(frame)) > 0:
-            (x, y, w, h) = extract_faces(frame)[0]
-            cv2.rectangle(frame, (x, y), (x+w, y+h), (86, 32, 251), 1)
-            cv2.rectangle(frame, (x, y), (x+w, y-40), (86, 32, 251), -1)
-            face = cv2.resize(frame[y:y+h, x:x+w], (50, 50))
-            identified_person = identify_face(face.reshape(1, -1))[0]
-            add_attendance(identified_person)
-            cv2.putText(frame, f'{identified_person}', (x+5, y-5),
-                        cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
-        cv2.imshow('Attendance', frame)
+
+        # Get parameter values from sliders
+        scaleFactor = max(1.1, cv2.getTrackbarPos('Scale Factor', 'Sliders') / 10)  # Ensure scaleFactor is greater than 1
+        minNeighbors = cv2.getTrackbarPos('Min Neighbors', 'Sliders')
+        minSize = cv2.getTrackbarPos('Min Size', 'Sliders')
+
+        if ret:
+            gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+            faces = face_detector.detectMultiScale(gray, scaleFactor=scaleFactor, minNeighbors=minNeighbors, minSize=(minSize, minSize))
+
+            for (x, y, w, h) in faces:
+                cv2.rectangle(frame, (x, y), (x + w, y + h), (86, 32, 251), 1)
+                cv2.rectangle(frame, (x, y), (x + w, y - 40), (86, 32, 251), -1)
+                face = cv2.resize(frame[y:y + h, x:x + w], (50, 50))
+                identified_person = identify_face(face.reshape(1, -1))[0]
+                add_attendance(identified_person)
+                cv2.putText(frame, f'{identified_person}', (x + 5, y - 5),
+                            cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+
+            cv2.imshow('Attendance', frame)
+
+        # Check for ESC key press to exit
         if cv2.waitKey(1) == 27:
             break
+
     cap.release()
     cv2.destroyAllWindows()
     names, rolls, times, l = extract_attendance()
